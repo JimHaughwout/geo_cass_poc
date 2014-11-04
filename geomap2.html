@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load("visualization", "1", {packages:["map"]});
+      google.setOnLoadCallback(drawChart);
+      function drawChart() {
+        var data = google.visualization.arrayToDataTable([
+          ['Lat', 'Long', 'Name'],
+          [0.2865, 34.2672, '1 @ 2014-11-02 23:16:44.627745'],
+          [-3.5522, 36.7692, '2 @ 2014-11-02 23:18:15.153201'],
+          [11.2163, 7.5067, '3 @ 2014-11-02 23:19:44.269787'],
+          [0.0156, 31.3382, '4 @ 2014-11-02 23:21:14.814340'],
+          [-0.4125, 37.5918, '5 @ 2014-11-02 23:22:45.042386'],
+          [9.9819, -3.6245, '6 @ 2014-11-02 23:24:15.684789'],
+          [0.9306, 33.6782, '7 @ 2014-11-02 23:25:45.724649'],
+          [-1.6253, 38.7179, '8 @ 2014-11-02 23:27:15.752011'],
+          [8.8174, 0.9616, '9 @ 2014-11-02 23:28:45.632214'],
+          [0.7556, 33.0723, '10 @ 2014-11-02 23:30:16.516353']
+        ]);
+
+        var map = new google.visualization.Map(document.getElementById('map_div'));
+        map.draw(data, {showTip: true});
+      }
+
+    </script>
+  </head>
+
+  <body>
+    <div id="map_div" style="width: 1024px; height: 768px"></div>
+  </body>
+</html>
