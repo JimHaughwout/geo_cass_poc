@@ -1,21 +1,21 @@
 from cassandra.cluster import Cluster
 from  time_utils import *
 from time_uuid import TimeUUID
+import settings
 
 #import uuid, time_uuid, datetime, time
 
-KEY_SPACE = 'test'
-
 '''
 CREATE TABLE loc_hist (
+  org text,
   thing text,
   ts_id timeuuid,
   lat float,
   lng float,
-  PRIMARY KEY (thing, ts_id))
-WITH CLUSTERING ORDER BY (ts_id DESC);
+  PRIMARY KEY (org, thing, ts_id))
+WITH CLUSTERING ORDER BY (thing ASC, ts_id DESC);
 
-INSERT INTO loc_hist (thing, ts_id, lat, lng) VALUES ('foo', now(), 38.2, -77.5);
+INSERT INTO loc_hist (org, thing, ts_id, lat, lng) VALUES ('foo', now(), 38.2, -77.5);
 
 CREATE TABLE loc_last (
   thing text,
@@ -27,9 +27,39 @@ CREATE TABLE loc_last (
 
 '''
 
+def initialize_cassandra():
+  cluster = Cluster()
+  session = cluster.connect(settings.KEY_SPACE)
+  return session
+
+def initialize_dashboard(session):
+  cql = "SELECT * FROM loc_hist WHERE org=? LIMIT ?"
+  read_all_for_org = session.prepare(cql)
+  return read_all_for_org
+
+def initialize_logger(session):
+  cql = "INSERT INTO loc_hist (org, thing, ts_id, lat, lng) VALUES (?, ?, ?, ?, ?)"
+  insert_location = session.prepare(cql)
+  return insert_location_read
 
 
 
+def get_loc(session, cql_statement, org, limit=10000):
+  locations = session.execute(cql_statement, [org, limit])
+  for location in locations:
+    for item in location:
+      print item,
+    print 
+
+
+  
+session = initialize_cassandra()
+get_loc_stmt = initialize_dashboard(session)
+get_loc(session, get_loc_stmt, 'sgs')
+
+
+
+'''
 def show_loc_hist(thing):
   cluster = Cluster()
   session = cluster.connect(KEY_SPACE)
@@ -44,19 +74,13 @@ def show_loc_hist(thing):
 show_loc_hist('foo')
 
 
-'''
 # Connect to C*
 cluster = Cluster()
 session = cluster.connect(KEY_SPACE)
 
 # Prepare statements
-get_loc_stmt = session.prepare("SELECT * FROM loc_hist")
+get_loc_stmt = session.prepare("SELECT * FROM loc_hist WHERE org=? AND ")
 
-locations = session.execute(get_loc_stmt)
-for location in locations:
-    print location.thing
-    print location.ts_id
-    print get_ts_for_timeuuid(location.ts_id, cassandra=True)
 
 
 # Prepare statements
