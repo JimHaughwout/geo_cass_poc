@@ -39,9 +39,8 @@ CREATE TABLE loc_hist (
   ts_id timeuuid,
   lat float,
   lng float,
-  PRIMARY KEY (org, thing, ts_id))
-WITH CLUSTERING ORDER BY (thing ASC, ts_id DESC);
-# TODO FIX PARTITIONING (org, thing)
+  PRIMARY KEY ((org, thing), ts_id))
+WITH CLUSTERING ORDER BY (ts_id DESC);
 
 CREATE TABLE loc_dash (
   org text,
