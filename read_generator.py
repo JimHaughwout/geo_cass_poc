@@ -41,6 +41,7 @@ CREATE TABLE loc_hist (
   lng float,
   PRIMARY KEY (org, thing, ts_id))
 WITH CLUSTERING ORDER BY (thing ASC, ts_id DESC);
+# TODO FIX PARTITIONING (org, thing)
 
 CREATE TABLE loc_dash (
   org text,
