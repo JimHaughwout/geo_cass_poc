@@ -1,16 +1,15 @@
+import settings
 from datetime import datetime, timedelta
 from time import sleep
 from random import uniform
-import settings
 from models import Loc_Read
 from map_utils import gen_map
 from cassandra.cluster import Cluster
-
+from time_utils import make_timeuuid
 
 def move_thing(thing, speed, variance, clock_ts):
     # deg / km * km / hr * hr / sec * sec
     elapsed_seconds = (clock_ts - thing.ts).total_seconds()
-    #print elapsed_seconds
     deg_move = (1 / 110.4) * speed * (1.0 / 3600) * elapsed_seconds
     lat_move = uniform(0, 1) * deg_move * uniform(100 - variance, 100 + variance) / 100
     lng_move = uniform(0, 1) * deg_move * uniform(100 - variance, 100 + variance) / 100
@@ -29,11 +28,35 @@ def move_thing(thing, speed, variance, clock_ts):
     thing.ts += timedelta(seconds=elapsed_seconds)
 
 # Connect to Cassandra
-luster = Cluster()
+cluster = Cluster()
 session = cluster.connect(settings.KEY_SPACE)
 
+# Generate prepared statements
+'''
+CREATE TABLE loc_hist (
+  org text,
+  thing text,
+  ts_id timeuuid,
+  lat float,
+  lng float,
+  PRIMARY KEY (org, thing, ts_id))
+WITH CLUSTERING ORDER BY (thing ASC, ts_id DESC);
 
-# Derived Variables
+CREATE TABLE loc_dash (
+  org text,
+  thing text,
+  ts timestamp,
+  lat float,
+  lng float,
+  PRIMARY KEY (org, thing))
+WITH CLUSTERING ORDER BY (thing ASC);
+
+'''
+insert_loc_hist = session.prepare("INSERT INTO loc_hist (org, thing, ts_id, lat, lng) VALUES (?, ?, ?, ?, ?)")
+insert_loc_dash = session.prepare("INSERT INTO loc_dash (org, thing, ts, lat, lng) VALUES (?, ?, ?, ?, ?) USING TTL 3600")
+
+
+# Generated Derived Variables
 read_interval = float(settings.REPORTING_INTERVAL) / settings.THING_COUNT
 clock_ts = datetime.strptime(settings.START_DT, "%Y-%m-%d %H:%M:%S")
 interval_lo = (1.0 - settings.TIME_VARIANCE / 100.0) * read_interval
@@ -50,15 +73,28 @@ for thing in xrange(1, settings.THING_COUNT + 1):
     thing_state.append(starting_loc)
 
 
-# Start moving
+# Generate movements and reads for CYCLE_COUNT passes through all things
 for cycle in xrange(0, settings.CYCLE_COUNT):
     for thing in thing_state:
-        clock_ts += timedelta(seconds=uniform(interval_lo, interval_hi))
+        print '.' # Show activity
+
+        # Generate a delay and increment the virtual clock
+        time_interval = uniform(interval_lo, interval_hi)
+        sleep(time_interval)
+        clock_ts += timedelta(seconds=time_interval)
+        
+        # Simulate the move, in memory
         move_thing(thing, settings.SPEED, settings.SPEED_VARIANCE, clock_ts)
-        # print thing.id, thing.lat, thing.lng, thing.ts
+        
+        # Insert in-memory values into Cassandra
+        session.execute(insert_loc_hist, [str(settings.ORG), str(thing.id), make_timeuuid(thing.ts), thing.lat, thing.lng])
+        session.execute(insert_loc_dash, [str(settings.ORG), str(thing.id), thing.ts, thing.lat, thing.lng])
+
+# Close Cassandra session
+session.shutdown()
 
 #Trigger the map
-gen_map(thing_state)
+#gen_map(thing_state)
 
 
 

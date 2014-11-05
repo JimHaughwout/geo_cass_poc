@@ -1,5 +1,6 @@
 import webbrowser
 import os
+from time_utils import get_ts_for_timeuuid
 
 FILE_NAME = 'current_locations.html'
 
@@ -42,13 +43,14 @@ def gen_map(locations):
       </body>
     </html>
     """
+    #TODO Switch to LocRead
 
     f = open(FILE_NAME, 'w')
     f.write("%s" % header)
     for location in locations:
       f.write("          [%.4f, %.4f, 'Thing-%s at (%.3f, %.3f) as of %s']," % \
          (location.lat, location.lng, 
-          location.id, location.lat, location.lng, location.ts))
+          location.id, location.lat, location.lng, location.ts_id)
     f.write("%s" % footer)
     f.close()
 
