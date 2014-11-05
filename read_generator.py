@@ -87,14 +87,17 @@ for cycle in xrange(0, settings.CYCLE_COUNT):
         move_thing(thing, settings.SPEED, settings.SPEED_VARIANCE, clock_ts)
         
         # Insert in-memory values into Cassandra
-        session.execute(insert_loc_hist, [str(settings.ORG), str(thing.id), make_timeuuid(thing.ts), thing.lat, thing.lng])
-        session.execute(insert_loc_dash, [str(settings.ORG), str(thing.id), thing.ts, thing.lat, thing.lng])
+        try:
+          session.execute(insert_loc_hist, [str(settings.ORG), str(thing.id), make_timeuuid(thing.ts), thing.lat, thing.lng])
+        except:
+          print "Could not insert location history for Thing %d at %s" % (thing.id, thing.ts)
+        try:
+          session.execute(insert_loc_dash, [str(settings.ORG), str(thing.id), thing.ts, thing.lat, thing.lng])
+        except:
+          print "Could not insert into location dashboard for Thing %d at %s" % (thing.id, thing.ts)
 
 # Close Cassandra session
 session.shutdown()
-
-#Trigger the map
-#gen_map(thing_state)
 
 
 

@@ -49,8 +49,9 @@ def gen_map(locations):
     f = open(FILE_NAME, 'w')
     f.write("%s" % header)
     for location in locations:
-      f.write("          [%.4f, %.4f, 'Thing-%s at (%.3f, %.3f) as of %s']," % \
-         (location.lat, location.lng, location.thing, location.lat, location.lng, location.ts))
+      f.write("\n              [%.4f, %.4f, 'Thing %s at (%.3f, %.3f) as of %s']," % \
+         (location.lat, location.lng, location.thing, 
+          location.lat, location.lng, location.ts.isoformat()))
     f.write("%s" % footer)
     f.close()
 
