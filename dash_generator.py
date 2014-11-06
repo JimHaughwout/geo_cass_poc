@@ -24,12 +24,16 @@ CREATE TABLE loc_dash (
 WITH CLUSTERING ORDER BY (thing ASC);
 
 '''
+
+
 # Limit to 10K results. We could override but this is likely already too much.
-get_loc_dash = session.prepare("SELECT * FROM loc_dash WHERE org=? LIMIT 10000")
+get_loc_dash = session.prepare("SELECT * FROM loc_dash WHERE org=? LIMIT 5000")
 
 # Query Cassandra for the dashboard
-things = session.execute(get_loc_dash, [str(settings.ORG)])
-
+try:
+    things = session.execute(get_loc_dash, [str(settings.ORG)])
+except:
+    raise
 # Close Cassandra session
 session.shutdown()
 

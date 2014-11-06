@@ -74,9 +74,11 @@ for thing in xrange(1, settings.THING_COUNT + 1):
 
 
 # Generate movements and reads for CYCLE_COUNT passes through all things
+i = 1
 for cycle in xrange(0, settings.CYCLE_COUNT):
     for thing in thing_state:
-        print '.' # Show activity
+        print i # Show activity
+        i += 1
 
         # Generate a delay and increment the virtual clock
         time_interval = uniform(interval_lo, interval_hi)
