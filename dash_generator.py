@@ -1,12 +1,6 @@
 import settings
-from datetime import datetime, timedelta
-from time import sleep
-from random import uniform
-from models import Loc_Read
 from map_utils import gen_map
 from cassandra.cluster import Cluster
-from time_utils import make_timeuuid
-
 
 # Connect to Cassandra
 cluster = Cluster()

@@ -4,18 +4,6 @@ from time_utils import get_ts_for_timeuuid
 from models import Loc_Read
 
 FILE_NAME = 'current_locations.html'
-'''
-def gen_google_coords(locations):
-    for location in thing_locations:
-        print "          [%.4f, %.4f, 'Thing-%s @ %s']," % \
-         (location.lat, location.lng, location.id, location.ts)
-'''
-
-data = """
-          [37.4232, -122.0853, 'Work'],
-          [37.4289, -122.1697, 'University'],
-          [37.6153, -122.3900, 'Airport'],
-          [37.4422, -122.1731, 'Shopping']"""
 
 def gen_map(locations):
     header = """
