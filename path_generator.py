@@ -1,14 +1,17 @@
 import settings
-#from datetime import datetime, timedelta
-#from models import Loc_Read
-from map_utils import gen_trail
+from map_utils import gen_path
 from cassandra.cluster import Cluster
-#from time_utils import make_timeuuid
-for sys import argv
+import sys 
 
 # Create derived variables
-org = str(settings.ORG)
-thing = str(argv[1])
+print len(sys.argv)
+if len(sys.argv) == 2:
+    org = str(settings.ORG)
+    thing = str(sys.argv[1])
+else:
+    print "Usage: %s thing_id" % sys.argv[0]
+    sys.exit
+
 
 # Connect to Cassandra
 cluster = Cluster()
@@ -28,7 +31,7 @@ WITH CLUSTERING ORDER BY (ts_id DESC);
 
 
 # Limit to 10K results. We could override but this is likely already too much.
-get_loc_history = session.prepare("SELECT * FROM loc_history WHERE org=? AND thing=? LIMIT 5000")
+get_loc_history = session.prepare("SELECT thing, dateOf(ts_id), lat, lng FROM loc_hist WHERE org=? AND thing=? LIMIT 5000")
 
 # Query Cassandra for the dashboard
 try:
@@ -39,7 +42,10 @@ except:
 session.shutdown()
 
 #Trigger the map
-gen_trail(thing_locations)
-
+gen_path(thing_locations)
+'''
+for loc in thing_locations:
+    print loc
+'''
 
 
