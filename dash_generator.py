@@ -8,6 +8,8 @@ session = cluster.connect(settings.KEY_SPACE)
 
 # Generate prepared statements
 '''
+Requires the following schema
+
 CREATE TABLE loc_dash (
   org text,
   thing text,

@@ -8,11 +8,25 @@ from cassandra.cluster import Cluster
 from time_utils import make_timeuuid
 
 def move_thing(thing, speed, variance, clock_ts):
-    # deg / km * km / hr * hr / sec * sec
+    '''
+    Moves a thing from Loc_Read to another Loc_Read.
+    Moves based on speed, variance and elapsed time for move.
+    Move direction is random but based on modulo of thing_id.
+
+    @param: thing - thing to move (a Loc_Read object)
+    @param: speed - speed of movement in kph
+    @param: variance - variance (+/- %) of speed during move
+    @param: clock_ts - current time. This is used to determine elapsed time
+                        from things last move (which in turn determines
+                        distance moved)
+    '''
+    # Generate derived values and movement
     elapsed_seconds = (clock_ts - thing.ts).total_seconds()
     deg_move = (1 / 110.4) * speed * (1.0 / 3600) * elapsed_seconds
     lat_move = uniform(0, 1) * deg_move * uniform(100 - variance, 100 + variance) / 100
     lng_move = uniform(0, 1) * deg_move * uniform(100 - variance, 100 + variance) / 100
+    
+    # Move the thing where direction is based on modulo of thing id
     if thing.id % 4 == 0: 
         thing.lat += lat_move
         thing.lng += lng_move
@@ -33,6 +47,8 @@ session = cluster.connect(settings.KEY_SPACE)
 
 # Generate prepared statements
 '''
+INSERTs into the following schemas:
+
 CREATE TABLE loc_hist (
   org text,
   thing text,
@@ -61,7 +77,6 @@ read_interval = float(settings.REPORTING_INTERVAL) / settings.THING_COUNT
 clock_ts = datetime.strptime(settings.START_DT, "%Y-%m-%d %H:%M:%S")
 interval_lo = (1.0 - settings.TIME_VARIANCE / 100.0) * read_interval
 interval_hi = (1.0 + settings.TIME_VARIANCE / 100.0) * read_interval
-# print interval_lo, interval_hi
 
 # Build array of initial thing locations
 thing_state = []

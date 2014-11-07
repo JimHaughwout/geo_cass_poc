@@ -1,6 +1,14 @@
 from random import uniform
 
 class Loc_Read(object):
+    '''
+    Location Read object:
+
+    @param: id - Thing ID  
+    @param: ts - Timestamp of Read (datetime.datetime)
+    @param: lat - Latitude of read location
+    @param: lng - Longitude of read location
+    '''
 
     def __init__(self, thing_id, timestamp, latitude, longitude):
         self.id = thing_id
@@ -10,6 +18,10 @@ class Loc_Read(object):
 
 
 class Bounding_Box(object):
+    '''
+    Geographic bounding box. We use this to select random start points
+    between upper-left (Northwest corner) and lower-right (Southeast corner)
+    '''
 
     def __init__(self, upper_left_coords, lower_right_coords):
         self.lat_n, self.lng_w = upper_left_coords

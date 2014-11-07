@@ -4,6 +4,15 @@ from time_utils import get_ts_for_timeuuid
 from models import Loc_Read
 
 def gen_map(locations):
+  '''
+  Generates HTML and JS for a 'simple markers' Google map and displays 
+  latest location of things in a browser.
+
+  :param locations: list of location reads (see models.Loc_Read)
+  :returns Prints count of markers displayed and call browser to display map
+  
+  '''
+    # HTML/JS Header
     header = """
     <html>
     <head>
@@ -14,7 +23,7 @@ def gen_map(locations):
         function drawChart() {
             var data = google.visualization.arrayToDataTable([
               ['Lat', 'Long', 'Name'],"""
-
+    # HTML/JS Footer
     footer = """
             ]);
     
@@ -30,6 +39,7 @@ def gen_map(locations):
       </body>
     </html>
     """
+    # Create the file
     file_name = 'location_dashboard.html'
     f = open(file_name, 'w')
     f.write("%s" % header)
@@ -40,14 +50,23 @@ def gen_map(locations):
     f.write("%s" % footer)
     f.close()
 
+    # Display the file in a browser and print results
     full_path = os.path.realpath(file_name)
     url = 'file://' + full_path
     webbrowser.open(url)
-    #webbrowser.open_new_tab(url)
     print "Showing %d things." % len(locations)
 
 
 def gen_path(location_path):
+  '''
+  Generates HTML and JS for a 'simple markers' Google map and displays
+  path of a thing in a browser.
+
+  :param locations: list of location reads (see models.Loc_Read)
+  :returns Prints count of markers displayed and call browser to display map
+  
+  '''
+    # HTML/JS Header
     header = """
     <html>
     <head>
@@ -59,6 +78,7 @@ def gen_path(location_path):
             var data = google.visualization.arrayToDataTable([
               ['Lat', 'Long', 'Name'],"""
 
+    # HTML/JS Footer
     footer = """
             ]);
     
@@ -74,6 +94,8 @@ def gen_path(location_path):
       </body>
     </html>
     """
+    
+    # Generate the file
     file_name = 'location_path.html'
     f = open(file_name, 'w')
     f.write("%s" % header)
@@ -84,8 +106,8 @@ def gen_path(location_path):
     f.write("%s" % footer)
     f.close()
 
+    # Display in a browser, print the path length
     full_path = os.path.realpath(file_name)
     url = 'file://' + full_path
     webbrowser.open(url)
-    #webbrowser.open_new_tab(url)
-    print "Showing %d locations for Thing %s." % (len(locations), location[0].thing)
+    print "Showing %d locations for Thing %s." % (len(location_path), location_path[0].thing)
