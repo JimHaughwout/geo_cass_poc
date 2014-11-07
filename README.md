@@ -1,4 +1,4 @@
 geo_cass_poc
 ============
 
-POC
+Proof of concept for NoSQL model for sensor visibilty.
